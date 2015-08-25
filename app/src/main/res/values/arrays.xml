@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="pref_units">
+        <item>@string/default_sort_by</item>
+        <item>@string/avg_vote_sort_by</item>
+    </string-array>
+    <string-array name="pref_units_values">
+        <item>@string/default_sort_by_value</item>
+        <item>@string/avg_vote_sort_by_value</item>
+    </string-array>
+</resources>
