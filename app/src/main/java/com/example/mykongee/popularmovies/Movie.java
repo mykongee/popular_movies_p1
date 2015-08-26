@@ -1,12 +1,15 @@
 package com.example.mykongee.popularmovies;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class Movie {
+public class Movie implements Parcelable{
 
     public String id;
     public String movieTitle;
@@ -14,6 +17,19 @@ public class Movie {
     public String movieReleaseDate;
     public Double movieRating;
     public String movieOverview;
+
+    public Movie() {
+
+    }
+
+    private Movie(Parcel in){
+        this.id = in.readString();
+        this.movieTitle = in.readString();
+        this.moviePosterPath = in.readString();
+        this.movieReleaseDate = in.readString();
+        this.movieRating = in.readDouble();
+        this.movieOverview = in.readString();
+    }
 
     public static Movie fromJsonObject(JSONObject jsonObject) {
         Movie movie = new Movie();
@@ -54,6 +70,34 @@ public class Movie {
         }
         return movieList;
     }
+
+    @Override
+    public int describeContents(){
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i){
+        parcel.writeString(id);
+        parcel.writeString(movieTitle);
+        parcel.writeString(moviePosterPath);
+        parcel.writeString(movieReleaseDate);
+        parcel.writeDouble(movieRating);
+        parcel.writeString(movieOverview);
+    }
+
+    public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
+        @Override
+        public Movie createFromParcel(Parcel parcel){
+            return new Movie(parcel);
+        }
+
+        @Override
+        public Movie[] newArray(int i){
+            return new Movie[i];
+        }
+    };
+
 
     public String getId() {
         return id;

@@ -33,8 +33,25 @@ public class MainActivityFragment extends Fragment {
 
     MovieAdapter movieAdapter;
     GridView gridView;
+    ArrayList<Movie> movieArrayList;
 
     public MainActivityFragment() {
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState == null || !savedInstanceState.containsKey("movies")){
+            movieArrayList = new ArrayList<Movie>();
+        } else {
+            movieArrayList = savedInstanceState.getParcelableArrayList("movies");
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState){
+        outState.putParcelableArrayList("movies", movieArrayList);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -46,13 +63,15 @@ public class MainActivityFragment extends Fragment {
         // Create the GridView object from the xml layout.
         // NOTE: Since rootView is the xml layout file containing the xml for gridview,
         // rootView.findViewById is used. NOT getActivity()
-        final ArrayList<Movie> movieArrayList = new ArrayList<Movie>();
+
+        //final ArrayList<Movie> movieArrayList = new ArrayList<Movie>();
 
         movieAdapter = new MovieAdapter(
                 getActivity(), //Context in which we want to place the adapter into
                 R.layout.list_item_movie, //The format of the views inside the GridView
                 R.id.list_item_movie_imageview, //ID of the imageview to populate
-                new ArrayList<Movie>() //the data source we want to populate the ListView with
+                movieArrayList
+                // /new ArrayList<Movie>() //the data source we want to populate the ListView with
         );
 
         gridView = (GridView) rootView.findViewById(R.id.gridview);
