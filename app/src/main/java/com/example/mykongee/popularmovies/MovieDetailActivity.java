@@ -67,13 +67,15 @@ public class MovieDetailActivity extends AppCompatActivity {
             Intent intent = getActivity().getIntent();
             Bundle extras = intent.getExtras();
             ((TextView) rootView.findViewById(R.id.title)).setText(extras.getString("TITLE"));
+            ((ImageView) rootView.findViewById(R.id.poster)).
+                    setScaleType(ImageView.ScaleType.CENTER_CROP);
             Picasso.with(getActivity())
-                    .load("http://image.tmdb.org/t/p/w500/" + extras.getString("POSTER"))
+                    .load("http://image.tmdb.org/t/p/w342/" + extras.getString("POSTER"))
                     .into((ImageView) rootView.findViewById(R.id.poster));
             ((TextView) rootView.findViewById(R.id.overview)).setText("   " +
                     extras.getString("OVERVIEW"));
             ((TextView) rootView.findViewById(R.id.rating))
-                    .setText("Rating: " + extras.getString("RATING") + "/10");
+                    .setText(extras.getString("RATING") + "/10");
             ((TextView) rootView.findViewById(R.id.release_date))
                     .setText(extras.getString("RELEASE_DATE"));
 
