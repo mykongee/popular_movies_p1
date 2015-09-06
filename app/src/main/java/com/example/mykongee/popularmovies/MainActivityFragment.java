@@ -50,7 +50,7 @@ public class MainActivityFragment extends Fragment {
 
         // Create the GridView object from the xml layout.
         // NOTE: Since rootView is the xml layout file containing the xml for gridview,
-        // rootView.findViewById is used. NOT getActivity()
+        // rootView.findViewById is used. NOT getActivity() method
 
         //final ArrayList<Movie> movieArrayList = new ArrayList<Movie>();
 
