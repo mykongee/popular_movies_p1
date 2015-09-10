@@ -1,8 +1,12 @@
 package com.example.mykongee.popularmovies;
 
+import android.content.ContentValues;
+import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
+
+import com.example.mykongee.popularmovies.data.MovieContract;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,43 +18,91 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.Vector;
 
 /**
  * Created by Mykongee on 9/5/15.
  */
 
-public class FetchMovieTask extends AsyncTask<String, Void, ArrayList<Movie>> {
+public class FetchMovieTask extends AsyncTask<String, Void, Void> {
 
     private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
     public MovieAdapter movieAdapter;
+    private Context mContext;
 
-    protected ArrayList<Movie> getMovieDataFromJson(String movieJsonStr) throws JSONException {
+    public FetchMovieTask(Context context) {
+        mContext = context;
+    }
 
-        //Names of the JSON Objects we will extract
+    protected void getMovieDataFromJson(String movieJsonStr) throws JSONException {
+
+        //Names of the JSON Objects we will extract from the url
         final String TMDB_RESULTS = "results";
-        final String TMDB_TITLE = "original_title";
+        /* final String TMDB_TITLE = "original_title";
         final String TMDB_IMAGE = "poster_path";
         final String TMDB_OVERVIEW = "overview";
         final String TMDB_RELEASE_DATE = "release_date";
-        final String TMDB_AVG_VOTE = "vote_average";
+        final String TMDB_AVG_VOTE = "vote_average";*/
 
 
-        //Get the JSON Array of the movies
-        JSONObject movieJson = new JSONObject(movieJsonStr);
-        JSONArray movieJsonArray = movieJson.getJSONArray(TMDB_RESULTS);
-        Log.v(LOG_TAG, "Got the JSON Array");
+        // Get the JSON Array of the movies
+        try {
 
-        //Populate the ArrayList with Movie objects constructed from
-        //JSON Objects
-        ArrayList<Movie> movieArrayList = Movie.fromJsonArray(movieJsonArray);
-        return movieArrayList;
+            JSONObject movieJson = new JSONObject(movieJsonStr);
+            JSONArray movieJsonArray = movieJson.getJSONArray(TMDB_RESULTS);
+            Log.v(LOG_TAG, "Got the JSON Array");
 
-        //Return a List of Movie objects that the adapter will use
+            // Vector with information to be inserted into the database
+            // Remember data must be inserted into SQLiteDatabase as ContentValues
+            Vector<ContentValues> contentValuesVector = new Vector<>(movieJsonArray.length());
+
+            // Make Movie models from JSON objects
+            // Store the movie model information into the ContentValues
+            for (int i = 0; i < movieJsonArray.length(); i++) {
+                // Get JsonObject, make Movie model
+                JSONObject movieJsonObject = movieJsonArray.getJSONObject(i);
+                Movie movieModel = Movie.fromJsonObject(movieJsonObject);
+
+                ContentValues movieValues = new ContentValues();
+
+                // Data that will populate the columns of a row in the database
+                movieValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, movieModel.getId());
+                movieValues.put(MovieContract.MovieEntry.COLUMN_TITLE, movieModel.getTitle());
+                movieValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, movieModel.getOverview());
+                movieValues.put(MovieContract.MovieEntry.COLUMN_POSTER_PATH,
+                        movieModel.getPosterPath());
+                movieValues.put(MovieContract.MovieEntry.COLUMN_RATING, movieModel.getRating());
+                movieValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE,
+                        movieModel.getReleaseDate());
+                movieValues.put(MovieContract.MovieEntry.COLUMN_POPULARITY,
+                        movieModel.getPopularity());
+
+
+                // Add the ContentValues to the vector that will populate the database
+                contentValuesVector.add(movieValues);
+
+            }
+
+            // Now that you have the vector of ContentValues, bulkInsert the data
+            // into the database
+            int inserted = 0;
+            if (contentValuesVector.size() > 0) {
+                ContentValues[] contentValuesArray = new ContentValues[contentValuesVector.size()];
+                contentValuesVector.toArray(contentValuesArray);
+                inserted = mContext.getContentResolver().bulkInsert(
+                        MovieContract.MovieEntry.CONTENT_URI,
+                        contentValuesArray);
+            }
+            Log.d(LOG_TAG, "FetchMovieTask complete. " + inserted + "inserted");
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+            e.printStackTrace();
+        }
     }
 
+
     @Override
-    protected ArrayList<Movie> doInBackground(String... params) {
+    protected Void doInBackground(String... params) {
         //Declared outside try/catch block
         //In order to close these in the finally block
         HttpURLConnection urlConnection = null;
@@ -62,7 +114,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, ArrayList<Movie>> {
         //http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=[APIKEY]
 
         try {
-            final String API_KEY = "c99a4285b4e0a83397b9deca2e4d9d16";
+            final String API_KEY = "YOUR_API_KEY";
             final String BASE_URL = "http://api.themoviedb.org/3/discover/movie";
             final String SORT_PARAM = "sort_by";
             final String API_PARAM = "api_key";
@@ -116,7 +168,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, ArrayList<Movie>> {
             //parse json str to get data
 
             try {
-                return getMovieDataFromJson(movieJsonStr);
+                getMovieDataFromJson(movieJsonStr);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -139,14 +191,4 @@ public class FetchMovieTask extends AsyncTask<String, Void, ArrayList<Movie>> {
         return null;
     }
 
-    @Override
-    protected void onPostExecute(ArrayList<Movie> result) {
-        if (result != null && movieAdapter != null) {
-            movieAdapter.clear();
-            for (Movie movie : result) {
-                movieAdapter.add(movie);
-            }
-        }
-
-    }
 }

@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,7 +20,6 @@ public class MovieDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
-        Log.v("HEY LOOK HERE", "set content view with layout");
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment, new MovieFragment())
@@ -70,7 +68,7 @@ public class MovieDetailActivity extends AppCompatActivity {
             ((ImageView) rootView.findViewById(R.id.poster)).
                     setScaleType(ImageView.ScaleType.CENTER_CROP);
             Picasso.with(getActivity())
-                    .load("http://image.tmdb.org/t/p/w342/" + extras.getString("POSTER"))
+                    .load("http://image.tmdb.org/t/p/w342/" + extras.getString("POSTER_PATH"))
                     .into((ImageView) rootView.findViewById(R.id.poster));
             ((TextView) rootView.findViewById(R.id.overview)).setText("   " +
                     extras.getString("OVERVIEW"));

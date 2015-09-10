@@ -17,6 +17,7 @@ public class Movie implements Parcelable{
     public String movieReleaseDate;
     public Double movieRating;
     public String movieOverview;
+    public Double moviePopularity;
 
     public Movie() {
 
@@ -29,6 +30,7 @@ public class Movie implements Parcelable{
         this.movieReleaseDate = in.readString();
         this.movieRating = in.readDouble();
         this.movieOverview = in.readString();
+        this.moviePopularity = in.readDouble();
     }
 
     public static Movie fromJsonObject(JSONObject jsonObject) {
@@ -41,6 +43,7 @@ public class Movie implements Parcelable{
             movie.moviePosterPath = jsonObject.getString("poster_path");
             movie.movieReleaseDate = jsonObject.getString("release_date");
             movie.movieRating = jsonObject.getDouble("vote_average");
+            movie.moviePopularity = jsonObject.getDouble("popularity");
 
         } catch (JSONException e){
             e.printStackTrace();
@@ -84,6 +87,7 @@ public class Movie implements Parcelable{
         parcel.writeString(movieReleaseDate);
         parcel.writeDouble(movieRating);
         parcel.writeString(movieOverview);
+        parcel.writeDouble(moviePopularity);
     }
 
     public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
@@ -121,6 +125,10 @@ public class Movie implements Parcelable{
 
     public String getOverview() {
         return movieOverview;
+    }
+
+    public Double getPopularity() {
+        return moviePopularity;
     }
 
 }
