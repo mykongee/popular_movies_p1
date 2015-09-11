@@ -57,11 +57,13 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
             Vector<ContentValues> contentValuesVector = new Vector<>(movieJsonArray.length());
 
             // Make Movie models from JSON objects
-            // Store the movie model information into the ContentValues
             for (int i = 0; i < movieJsonArray.length(); i++) {
                 // Get JsonObject, make Movie model
                 JSONObject movieJsonObject = movieJsonArray.getJSONObject(i);
                 Movie movieModel = Movie.fromJsonObject(movieJsonObject);
+
+                // TODO Don't store the movies in a database, only the favorites,
+                // TODO Do it like in P1
 
                 ContentValues movieValues = new ContentValues();
 
@@ -114,11 +116,10 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
         //http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=[APIKEY]
 
         try {
-            final String API_KEY = "YOUR_API_KEY";
+            final String API_KEY = "c99a4285b4e0a83397b9deca2e4d9d16";
             final String BASE_URL = "http://api.themoviedb.org/3/discover/movie";
             final String SORT_PARAM = "sort_by";
             final String API_PARAM = "api_key";
-            //final String SIZE = "";
 
             //Build an URI with given parameters
             Uri builtUri = Uri.parse(BASE_URL).buildUpon().
@@ -128,7 +129,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
 
             //Build URL with Uri
             URL url = new URL(builtUri.toString());
-            Log.v(LOG_TAG, "Built URL");
+            Log.v(LOG_TAG, "Built URL: " + url);
 
             //Create HttpUrlConnection and open the connection
             //Set request method to "GET"

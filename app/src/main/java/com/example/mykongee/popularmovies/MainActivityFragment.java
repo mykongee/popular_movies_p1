@@ -24,7 +24,7 @@ import java.util.ArrayList;
 public class MainActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     // MovieAdapter movieAdapter;
-    final int MOVIE_LOADER_ID = 0;
+    final static int MOVIE_LOADER_ID = 0;
     private MovieCursorAdapter movieAdapter;
     GridView gridView;
     ArrayList<Movie> movieArrayList;
@@ -112,7 +112,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         return rootView;
     }
 
-    void onSortOrderChange() {
+    public void onSortOrderChange() {
         updateMovies();
         getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
     }
