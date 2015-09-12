@@ -8,71 +8,125 @@
     android:id="@+id/movie_fragment"
     tools:context="com.example.mykongee.popularmovies.MovieDetailActivityFragment">
 
-    <TextView
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#26C6DA"
-        android:padding="16dp"
-        android:id="@+id/title"
-        android:textColor="#FFFFFF"
-        android:textSize="@dimen/abc_text_size_headline_material" />
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:background="#FFFFFF"
+            android:id="@+id/movie_frag">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#26C6DA"
+                android:padding="16dp"
+                android:id="@+id/title"
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/abc_text_size_headline_material" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <ImageView
+                    android:adjustViewBounds="true"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:src="@drawable/sample_1"
+                    android:id="@+id/poster" />
+
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/release_date_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="#000000"
+                        android:textSize="24sp"
+                        android:text="Release Date" />
+
+                    <TextView
+                        android:id="@+id/release_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_below="@id/release_date_text"
+                        android:layout_centerHorizontal="true"
+                        android:textColor="#000000"
+                        android:textSize="@dimen/abc_text_size_large_material" />
+
+                    <TextView
+                        android:id="@+id/duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_below="@+id/release_date"
+                        android:textColor="#848482"
+                        android:textSize="@dimen/abc_text_size_medium_material" />
+
+                    <TextView
+                        android:id="@+id/rating_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/release_date"
+                        android:textColor="#000000"
+                        android:textSize="24sp"
+                        android:text="Rating" />
+
+                    <TextView
+                        android:id="@+id/rating"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_below="@+id/rating_text"
+                        android:textColor="#000000"
+                        android:textSize="@dimen/abc_text_size_medium_material" />
+
+                </RelativeLayout>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/overview"
+                android:textColor="#848482"
+                android:textSize="@dimen/abc_text_size_small_material"
+                android:layout_margin="8dp" />
+
+        </LinearLayout>
+
+    </ScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="2">
+        android:orientation="vertical">
 
-        <ImageView
-            android:adjustViewBounds="true"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:src="@drawable/sample_1"
-            android:id="@+id/poster"/>
+        <ListView
+            android:id="@+id/trailers"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"></ListView>
 
-        <RelativeLayout
-            android:layout_width="0dp"
+        <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:id="@+id/reviews">
 
-            <TextView
-                android:id="@+id/release_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:textColor="#848482"
-                android:textSize="@dimen/abc_text_size_large_material" />
-
-            <TextView
-                android:id="@+id/duration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/release_date"
-                android:textColor="#848482"
-                android:textSize="@dimen/abc_text_size_large_material" />
-
-            <TextView
-                android:id="@+id/rating"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/duration"
-                android:textColor="#000000"
-                android:textSize="@dimen/abc_text_size_medium_material" />
-
-        </RelativeLayout>
+        </android.support.v7.widget.RecyclerView>
     </LinearLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/overview"
-        android:textColor="#848482"
-        android:textSize="@dimen/abc_text_size_small_material"/>
 
 </LinearLayout>

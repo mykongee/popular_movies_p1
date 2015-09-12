@@ -6,6 +6,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.example.mykongee.popularmovies.Adapters.MovieAdapter;
+import com.example.mykongee.popularmovies.Models.Movie;
 import com.example.mykongee.popularmovies.data.MovieContract;
 
 import org.json.JSONArray;
@@ -76,8 +78,8 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
                 movieValues.put(MovieContract.MovieEntry.COLUMN_RATING, movieModel.getRating());
                 movieValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE,
                         movieModel.getReleaseDate());
-                movieValues.put(MovieContract.MovieEntry.COLUMN_POPULARITY,
-                        movieModel.getPopularity());
+//                movieValues.put(MovieContract.MovieEntry.COLUMN_POPULARITY,
+//                        movieModel.getPopularity());
 
 
                 // Add the ContentValues to the vector that will populate the database
@@ -116,7 +118,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
         //http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=[APIKEY]
 
         try {
-            final String API_KEY = "YOUR_API_KEY";
+            final String API_KEY = "c99a4285b4e0a83397b9deca2e4d9d16";
             final String BASE_URL = "http://api.themoviedb.org/3/discover/movie";
             final String SORT_PARAM = "sort_by";
             final String API_PARAM = "api_key";

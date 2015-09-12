@@ -1,4 +1,4 @@
-package com.example.mykongee.popularmovies;
+package com.example.mykongee.popularmovies.Models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -17,20 +17,24 @@ public class Movie implements Parcelable{
     public String movieReleaseDate;
     public Double movieRating;
     public String movieOverview;
-    public Double moviePopularity;
+    public ArrayList<Trailer> movieTrailers;
+    public ArrayList<Review> movieReviews;
 
     public Movie() {
-
+        movieTrailers = new ArrayList<Trailer>();
+        movieReviews = new ArrayList<Review>();
     }
 
     private Movie(Parcel in){
+        this();
         this.id = in.readString();
         this.movieTitle = in.readString();
         this.moviePosterPath = in.readString();
         this.movieReleaseDate = in.readString();
         this.movieRating = in.readDouble();
         this.movieOverview = in.readString();
-        this.moviePopularity = in.readDouble();
+        this.movieTrailers = in.readArrayList(Trailer.class.getClassLoader());
+        this.movieReviews = in.readArrayList(Review.class.getClassLoader());
     }
 
     public static Movie fromJsonObject(JSONObject jsonObject) {
@@ -43,7 +47,6 @@ public class Movie implements Parcelable{
             movie.moviePosterPath = jsonObject.getString("poster_path");
             movie.movieReleaseDate = jsonObject.getString("release_date");
             movie.movieRating = jsonObject.getDouble("vote_average");
-            movie.moviePopularity = jsonObject.getDouble("popularity");
 
         } catch (JSONException e){
             e.printStackTrace();
@@ -87,7 +90,8 @@ public class Movie implements Parcelable{
         parcel.writeString(movieReleaseDate);
         parcel.writeDouble(movieRating);
         parcel.writeString(movieOverview);
-        parcel.writeDouble(moviePopularity);
+        parcel.writeList(movieTrailers);
+        parcel.writeList(movieReviews);
     }
 
     public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
@@ -127,8 +131,20 @@ public class Movie implements Parcelable{
         return movieOverview;
     }
 
-    public Double getPopularity() {
-        return moviePopularity;
+    public void setMovieTrailers(ArrayList<Trailer> trailers) {
+        movieTrailers = trailers;
+    }
+
+    public void setMovieReviews(ArrayList<Review> reviews) {
+        movieReviews = reviews;
+    }
+
+    public ArrayList<Trailer> getMovieTrailers() {
+        return movieTrailers;
+    }
+
+    public ArrayList<Review> getMovieReviews() {
+        return movieReviews;
     }
 
 }

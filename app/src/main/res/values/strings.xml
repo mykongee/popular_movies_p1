@@ -9,7 +9,7 @@
     <string name="sort_by_key">sort_by</string>
     <string name="default_sort_by">Popularity</string>
     <string name="avg_vote_sort_by">Average Vote</string>
-    <string name="default_sort_by_value">popularity</string>
-    <string name="avg_vote_sort_by_value">vote_average</string>
+    <string name="default_sort_by_value">popularity.desc</string>
+    <string name="avg_vote_sort_by_value">vote_average.desc</string>
 
 </resources>

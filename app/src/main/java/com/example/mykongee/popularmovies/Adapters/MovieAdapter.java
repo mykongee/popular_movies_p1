@@ -1,4 +1,4 @@
-package com.example.mykongee.popularmovies;
+package com.example.mykongee.popularmovies.Adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,15 +7,14 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
+import com.example.mykongee.popularmovies.Models.Movie;
+import com.example.mykongee.popularmovies.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
 public class MovieAdapter extends ArrayAdapter<Movie> {
 
-    /*public MovieAdapter(Context c, ArrayList<Movie> movieList) {
-        super(c, 0, movieList);
-    } */
     private Context context;
     private int resource;
     private ArrayList<Movie> movieList;

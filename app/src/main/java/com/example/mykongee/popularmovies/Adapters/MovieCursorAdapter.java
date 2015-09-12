@@ -1,4 +1,4 @@
-package com.example.mykongee.popularmovies;
+package com.example.mykongee.popularmovies.Adapters;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 
+import com.example.mykongee.popularmovies.R;
 import com.example.mykongee.popularmovies.data.MovieContract;
 import com.squareup.picasso.Picasso;
 

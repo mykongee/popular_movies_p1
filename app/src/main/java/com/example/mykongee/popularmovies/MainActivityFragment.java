@@ -2,6 +2,8 @@ package com.example.mykongee.popularmovies;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -14,8 +16,23 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import com.example.mykongee.popularmovies.Adapters.MovieAdapter;
+import com.example.mykongee.popularmovies.Adapters.MovieCursorAdapter;
+import com.example.mykongee.popularmovies.Models.Movie;
+import com.example.mykongee.popularmovies.Models.Review;
+import com.example.mykongee.popularmovies.Models.Trailer;
 import com.example.mykongee.popularmovies.data.MovieContract;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -25,7 +42,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     // MovieAdapter movieAdapter;
     final static int MOVIE_LOADER_ID = 0;
-    private MovieCursorAdapter movieAdapter;
+    private MovieAdapter movieAdapter;
+    private MovieCursorAdapter movieCursorAdapter;
     GridView gridView;
     ArrayList<Movie> movieArrayList;
     private String LOG_TAG = MainActivityFragment.class.getSimpleName();
@@ -58,11 +76,11 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-/*        if (savedInstanceState == null || !savedInstanceState.containsKey("movies")){
+        if (savedInstanceState == null || !savedInstanceState.containsKey("movies")) {
             movieArrayList = new ArrayList<Movie>();
         } else {
             movieArrayList = savedInstanceState.getParcelableArrayList("movies");
-        }*/
+        }
     }
 
     @Override
@@ -84,28 +102,35 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
         // Get a cursor from the ContentResolver with movie information
 
-        movieAdapter = new MovieCursorAdapter(getActivity(), null, 0);
+        //movieAdapter = new MovieCursorAdapter(getActivity(), null, 0);
+
+        movieAdapter = new MovieAdapter(
+                getActivity(), //Context in which we want to place the adapter into
+                R.layout.list_item_movie, //The format of the views inside the GridView
+                R.id.list_item_movie_imageview, //ID of the imageview to populate
+                movieArrayList
+                // /new ArrayList<Movie>() //the data source we want to populate the ListView with
+        );
+
+        gridView = (GridView) rootView.findViewById(R.id.gridview);
         gridView.setAdapter(movieAdapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                // CursorAdapter returns a cursor at the correct position or getItem(), or null
-                // if it cannot seek to that position
-                Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
-                if (cursor != null) {
-                    Bundle extras = new Bundle();
-                    extras.putString("OVERVIEW", cursor.getString(2));
-                    extras.putString("POSTER_PATH", cursor.getString(3));
-                    extras.putString("RATING", cursor.getString(4));
-                    extras.putString("RELEASE_DATE", cursor.getString(5));
-                    extras.putString("TITLE", cursor.getString(6));
-                    extras.putDouble("POPULARITY", cursor.getDouble(7));
-                    Log.v(LOG_TAG, "" + cursor.getDouble(7));
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Movie movie = (Movie) gridView.getItemAtPosition(position);
+                Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
+                Bundle extras = new Bundle();
+//                extras.putString("TITLE", movie.getTitle());
+//                extras.putString("POSTER_PATH", movie.getPosterPath());
+//                extras.putString("OVERVIEW", movie.getOverview());
+//                extras.putString("RELEASE_DATE", movie.getReleaseDate());
+//                extras.putString("RATING", movie.getRating().toString());
+//                extras.putParcelableArrayList("TRAILERS", movie.getMovieTrailers());
+//                extras.putParcelableArrayList("REVIEWS", movie.getMovieReviews());
+                extras.putParcelable("MOVIE", movie);
+                intent.putExtras(extras);
+                startActivity(intent);
 
-                    Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
-                    intent.putExtras(extras);
-                    startActivity(intent);
-                }
             }
         });
 
@@ -114,15 +139,24 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     public void onSortOrderChange() {
         updateMovies();
+        // TODO Make a static member variable mFavorites to indicate whether
+        // To load data from a cursor containing data of a Favorites movie table
+        // TODO Set a MovieCursorAdapter to gridView here when sorting by Favorites
         getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
     }
 
     public void updateMovies() {
         String sortPref = Utility.getPreferredSortOrder(getActivity());
+//        SharedPreferences sharedPreferences = PreferenceManager.
+//                getDefaultSharedPreferences(getActivity());
+//        String sortPref =  sharedPreferences.getString(getActivity().getString(R.string.sort_by_key),
+//                getActivity().getString(R.string.default_sort_by_value));
+
+        // TODO Fix why this is vote average
         Log.v(LOG_TAG, "updateMovies() sortPref = " + sortPref);
         // doInBackground takes in a String[]
         String[] prefs = {sortPref};
-        FetchMovieTask fetchMovieTask = new FetchMovieTask(getActivity());
+        FetchMovieTask fetchMovieTask = new FetchMovieTask();
         fetchMovieTask.execute(prefs);
 
     }
@@ -134,15 +168,12 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         super.onActivityCreated(savedInstanceState);
     }
 
-    // TODO Create onChangeSortOrder to reload the cursor with a different sort order based
-    // on preference
-
     @Override
     public void onStart() {
         super.onStart();
         Log.v("POPULARMOVIES", "onStart()");
         updateMovies();
-        getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
+        //getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
     }
 
     @Override
@@ -150,7 +181,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
         switch (id) {
             case MOVIE_LOADER_ID:
-                // String sortOrder = Utility.getPreferredSortOrder(getActivity());
                 String sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY;
                 cursorLoader = new CursorLoader(getActivity(),
                         MovieContract.MovieEntry.CONTENT_URI,
@@ -166,11 +196,251 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         Log.v(LOG_TAG, "row count: " + data.getCount());
-        movieAdapter.swapCursor(data);
+        if (movieCursorAdapter != null) {
+            movieCursorAdapter.swapCursor(data);
+        }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        movieAdapter.swapCursor(null);
+        movieCursorAdapter.swapCursor(null);
     }
+
+
+    public class FetchMovieTask extends AsyncTask<String, Void, ArrayList<Movie>> {
+
+        private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
+
+        protected ArrayList<Movie> getMovieDataFromJson(String movieJsonStr) throws JSONException {
+
+            //Names of the JSON Objects we will extract
+            final String TMDB_RESULTS = "results";
+            final String TMDB_TITLE = "original_title";
+            final String TMDB_IMAGE = "poster_path";
+            final String TMDB_OVERVIEW = "overview";
+            final String TMDB_RELEASE_DATE = "release_date";
+            final String TMDB_AVG_VOTE = "vote_average";
+
+            JSONObject movieJson = new JSONObject(movieJsonStr);
+            JSONArray movieJsonArray = movieJson.getJSONArray(TMDB_RESULTS);
+            Log.v(LOG_TAG, "Got the JSON Array");
+
+            ArrayList<Movie> movieArrayList = Movie.fromJsonArray(movieJsonArray);
+            Log.v(LOG_TAG, "got the movies");
+            return movieArrayList;
+
+            //Return a List of Movie objects that the adapter will use
+        }
+
+        protected ArrayList<ArrayList> getReviewsAndTrailersFromJson(String jsonString)
+                throws JSONException {
+            // Return this first array containing two ArrayLists of Trailers and Reviews
+            ArrayList<ArrayList> returnList = new ArrayList<ArrayList>();
+            ArrayList<Trailer> trailerList = new ArrayList<Trailer>();
+            ArrayList<Review> reviewList = new ArrayList<Review>();
+            final String TMDB_TRAILERS = "trailers";
+            final String TMDB_YOUTUBE = "youtube";
+            final String TMDB_REVIEWS = "reviews";
+            final String TMDB_RESULTS = "results";
+
+            JSONObject movieJson = new JSONObject(jsonString);
+
+            // Might have to handle cases in where there are no trailers or reviews
+
+            // Get trailers
+            JSONObject trailerJsonObject = movieJson.getJSONObject(TMDB_TRAILERS);
+            JSONArray youtubeJsonArray = trailerJsonObject.getJSONArray(TMDB_YOUTUBE);
+
+            // Get reviews
+            JSONObject reviewJsonObject = movieJson.getJSONObject(TMDB_REVIEWS);
+            JSONArray resultsJsonArray = reviewJsonObject.getJSONArray(TMDB_RESULTS);
+            if (youtubeJsonArray.length() != 0) {
+                trailerList = Trailer.fromJsonArray(youtubeJsonArray);
+            }
+
+            if (resultsJsonArray.length() != 0) {
+                reviewList = Review.fromJsonArray(resultsJsonArray);
+            }
+
+            returnList.add(trailerList);
+            returnList.add(reviewList);
+
+            return returnList;
+        }
+
+        protected void getReviewsAndTrailersFromMovieList(ArrayList<Movie> arrayList) {
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            String reviewAndTrailerJsonStr = null;
+            ArrayList<ArrayList> arrayLists = null;
+            //http://api.themoviedb.org/3/movie/{movie_id}?api_key=your_key&append_to_response=trailers,reviews
+
+            for (int i = 0; i < arrayList.size(); i++) {
+                final Movie movie = arrayList.get(i);
+                try {
+                    // get movie id of movie in position i of array
+                    final String MOVIE_ID = arrayList.get(i).getId();
+                    final String BASE_URL = "http://api.themoviedb.org/3/movie/" + MOVIE_ID;
+                    final String API_PARAM = "api_key";
+                    final String APPEND_PARAM = "append_to_response";
+                    final String RESPONSE = "trailers,reviews";
+
+                    // TODO take both API keys out when commiting
+                    final String API_KEY = "c99a4285b4e0a83397b9deca2e4d9d16";
+
+                    Uri builtUri = Uri.parse(BASE_URL).buildUpon()
+                            .appendQueryParameter(API_PARAM, API_KEY)
+                            .appendQueryParameter(APPEND_PARAM, RESPONSE)
+                            .build();
+
+                    URL url = new URL(builtUri.toString());
+
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setRequestMethod("GET");
+                    urlConnection.connect();
+
+                    InputStream inputStream = urlConnection.getInputStream();
+                    StringBuffer stringBuffer = new StringBuffer();
+                    if (inputStream == null) {
+                        return;
+                    }
+
+                    reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        stringBuffer.append(line + "/n");
+                    }
+
+                    if (stringBuffer.length() == 0) {
+                        return;
+                    }
+
+                    reviewAndTrailerJsonStr = stringBuffer.toString();
+
+                    try {
+                        arrayLists = getReviewsAndTrailersFromJson(reviewAndTrailerJsonStr);
+                        movie.setMovieTrailers(arrayLists.get(0));
+                        movie.setMovieReviews(arrayLists.get(1));
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        urlConnection.disconnect();
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        @Override
+        protected ArrayList<Movie> doInBackground(String... params) {
+            //Declared outside try/catch block
+            //In order to close these in the finally block
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            ArrayList<Movie> movies = null;
+
+            //String of the raw JSON response
+            String movieJsonStr = null;
+
+            //http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=[APIKEY]
+
+            try {
+                final String API_KEY = "c99a4285b4e0a83397b9deca2e4d9d16";
+                final String BASE_URL = "http://api.themoviedb.org/3/discover/movie";
+                final String SORT_PARAM = "sort_by";
+                final String API_PARAM = "api_key";
+                //final String SIZE = "";
+
+                //Build an URI with given parameters
+                Uri builtUri = Uri.parse(BASE_URL).buildUpon().
+                        appendQueryParameter(SORT_PARAM, params[0]).
+                        appendQueryParameter(API_PARAM, API_KEY)
+                        .build();
+
+                //Build URL with Uri
+                URL url = new URL(builtUri.toString());
+                Log.v(LOG_TAG, "Built URL");
+
+                //Create HttpUrlConnection and open the connection
+                //Set request method to "GET"
+                //Finally connect through the HttpURLConnection
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                //Because we are now connected, we can read in data
+                //Create inputstream from the HttpURLConnection
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer stringBuffer = new StringBuffer();
+                if (inputStream == null) {
+                    //Nothing to do
+                    return null;
+                }
+
+                //Chain InputStream to a BufferedReader
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String line;
+
+                //Now create the data string with StringBuffer
+                while ((line = reader.readLine()) != null) {
+                    // Adding a newline makes it easier to debug
+                    // Will not affect the parsing
+                    stringBuffer.append(line + "/n");
+                }
+
+                if (stringBuffer.length() == 0) {
+                    //Stream was empty, so nothing to parse
+                    return null;
+                }
+
+                movieJsonStr = stringBuffer.toString();
+                //http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=[api_key]
+                //parse json str to get data
+
+                try {
+                    movies = getMovieDataFromJson(movieJsonStr);
+                    Log.v(LOG_TAG, "got movies");
+                    getReviewsAndTrailersFromMovieList(movies);
+                    Log.v(LOG_TAG, "got trailers and reviews");
+                    return movies;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Fragment error", e);
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (final IOException e) {
+                        Log.e(LOG_TAG, "Error closing stream", e);
+                    }
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Movie> result) {
+            if (result != null && movieAdapter != null) {
+                movieAdapter.clear();
+                for (Movie movie : result) {
+                    movieAdapter.add(movie);
+                }
+            }
+
+        }
+    }
+
 }
