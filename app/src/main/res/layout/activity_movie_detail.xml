@@ -1,11 +1,12 @@
-<ScrollView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#FFFFFF">
+    android:background="#FFFFFF"
+    android:id="@+id/movie_container">
 
-    <FrameLayout
+    <ScrollView
         android:id="@+id/fragment"
         android:name="com.example.mykongee.popularmovies.MovieDetailActivityFragment"
         android:layout_width="match_parent"
@@ -13,6 +14,5 @@
         tools:layout="@layout/fragment_movie_detail"
         android:configChanges="orientation|screenSize" />
 
-
-</ScrollView>
+</LinearLayout>
 

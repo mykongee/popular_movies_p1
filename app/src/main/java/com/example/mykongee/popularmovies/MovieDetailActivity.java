@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,14 +30,17 @@ import java.util.ArrayList;
 
 public class MovieDetailActivity extends AppCompatActivity {
 
+    final String LOG_TAG = MovieDetailActivity.class.getSimpleName();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment, new MovieFragment())
+                    .add(R.id.movie_container, new MovieFragment())
                     .commit();
+            Log.v(LOG_TAG, "commited 2");
         }
 
     }
@@ -99,7 +103,7 @@ public class MovieDetailActivity extends AppCompatActivity {
             Bundle extras = intent.getExtras();
 
             // If this was launched from popularity sorted or average vote sorted gridview
-            if (extras.containsKey("MOVIE")) {
+            if (extras != null && extras.containsKey("MOVIE")) {
 
                 final Movie movie = extras.getParcelable("MOVIE");
 
@@ -207,7 +211,7 @@ public class MovieDetailActivity extends AppCompatActivity {
                 ((TextView) rootView.findViewById(R.id.release_date))
                         .setText(movie.getReleaseDate());
 
-            } else {
+            } else if (extras != null) {
                 // If this was sent from the sorted by favorites gridview
                 // Note the Floating Action Button does not work, but
                 // This should satisfy rubric...technically

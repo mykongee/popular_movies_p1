@@ -1,0 +1,46 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:weightSum="2">
+
+    <fragment
+        android:id="@+id/fragment"
+        android:name="com.example.mykongee.popularmovies.MainActivityFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout="@layout/fragment_main"
+        android:background="#FFFFFF"
+        android:layout_weight="1" />
+
+    <FrameLayout
+        android:id="@+id/movie_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
+
+    <!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--xmlns:tools="http://schemas.android.com/tools"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:layout_gravity="fill"-->
+    <!--tools:context=".MainActivityFragment"-->
+    <!--android:id="@+id/linear_layout"-->
+    <!--android:background="#FFFFFF"-->
+    <!--android:layout_weight="1">-->
+
+    <!--<GridView xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--android:id="@+id/gridview"-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="fill_parent"-->
+    <!--android:columnWidth="10dp"-->
+    <!--android:numColumns="2"-->
+    <!--android:verticalSpacing="0dp"-->
+    <!--android:horizontalSpacing="0dp"-->
+    <!--android:stretchMode="columnWidth"-->
+    <!--android:gravity="fill"-->
+    <!--/>-->
+    <!--</LinearLayout>-->
+
+</LinearLayout>

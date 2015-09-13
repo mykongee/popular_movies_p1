@@ -96,7 +96,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View rootView = inflater.inflate(R.layout.fragment_main, container);
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         // Create the GridView object from the xml layout.
         // NOTE: Since rootView is the xml layout file containing the xml for gridview,

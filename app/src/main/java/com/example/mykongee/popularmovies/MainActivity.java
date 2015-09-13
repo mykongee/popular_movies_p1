@@ -3,37 +3,41 @@ package com.example.mykongee.popularmovies;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.mykongee.popularmovies.MovieDetailActivity.MovieFragment;
 public class MainActivity extends AppCompatActivity {
 
     private final String MOVIEFRAGMENT_TAG = "MFTAG";
     private final String LOG_TAG = MainActivity.class.getSimpleName();
+    public boolean mTwoPane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//         works with R.layout.activity_main being a fragment, but not as any other ViewGroup
-//        if (savedInstanceState == null) {
-//            getSupportFragmentManager().beginTransaction()
-//                    .add(R.id.linear_layout, new MainActivityFragment(), MOVIEFRAGMENT_TAG)
-//                    // TODO problem with R.id.(something) ?
-//                    .commit();
-//        }
+
+        if (findViewById(R.id.movie_container) != null) {
+            mTwoPane = true;
+
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.movie_container, new MovieFragment(), MOVIEFRAGMENT_TAG)
+                        .commit();
+                Log.v(LOG_TAG, "commited");
+            }
+        } else {
+            mTwoPane = false;
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-//        MainActivityFragment mf = (MainActivityFragment) getSupportFragmentManager()
-//                .findFragmentById(R.id.linear_layout);
-//        Log.v(LOG_TAG, "got fragment by fragment tag");
-//        Log.v(LOG_TAG, "onSortOrderChange() called");
-//        if (mf != null) {
-//            mf.onSortOrderChange();
-//        }
+        MovieFragment mf = (MovieFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.movie_container);
     }
 
     @Override
