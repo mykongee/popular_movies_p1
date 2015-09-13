@@ -286,7 +286,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                     final String RESPONSE = "trailers,reviews";
 
                     // TODO take both API keys out when commiting
-                    final String API_KEY = "c99a4285b4e0a83397b9deca2e4d9d16";
+                    final String API_KEY = "";
 
                     Uri builtUri = Uri.parse(BASE_URL).buildUpon()
                             .appendQueryParameter(API_PARAM, API_KEY)
@@ -350,7 +350,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             //http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=[APIKEY]
 
             try {
-                final String API_KEY = "c99a4285b4e0a83397b9deca2e4d9d16";
+                final String API_KEY = "";
                 final String BASE_URL = "http://api.themoviedb.org/3/discover/movie";
                 final String SORT_PARAM = "sort_by";
                 final String API_PARAM = "api_key";
