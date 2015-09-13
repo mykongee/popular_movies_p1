@@ -31,6 +31,7 @@ import java.util.ArrayList;
 public class MovieDetailActivity extends AppCompatActivity {
 
     final String LOG_TAG = MovieDetailActivity.class.getSimpleName();
+    public static Bundle extras;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,9 +39,9 @@ public class MovieDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_movie_detail);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.movie_container, new MovieFragment())
+                    .add(R.id.fragment, new MovieFragment())
                     .commit();
-            Log.v(LOG_TAG, "commited 2");
+            Log.v(LOG_TAG, "commit in DetailActivity");
         }
 
     }
@@ -75,9 +76,6 @@ public class MovieDetailActivity extends AppCompatActivity {
         ArrayList<Trailer> trailerList;
         ArrayList<Review> reviewList;
 
-        public MovieFragment() {
-        }
-
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -91,7 +89,6 @@ public class MovieDetailActivity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-
             View rootView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
 
             LinearLayout parentLayout = (LinearLayout) rootView.findViewById(R.id.movie_fragment);
@@ -99,12 +96,18 @@ public class MovieDetailActivity extends AppCompatActivity {
             LayoutInflater layoutInflater = getLayoutInflater(savedInstanceState);
             View view;
 
-            Intent intent = getActivity().getIntent();
-            Bundle extras = intent.getExtras();
+            if (getActivity().getIntent() != null && getArguments() == null) {
+                Intent intent = getActivity().getIntent();
+                extras = intent.getExtras();
+                Log.v(LOG_TAG, "got extras from intent");
+            } else {
+                extras = getArguments();
+                Log.v(LOG_TAG, "got extras from argument");
+            }
 
             // If this was launched from popularity sorted or average vote sorted gridview
             if (extras != null && extras.containsKey("MOVIE")) {
-
+                Log.v(LOG_TAG, "onCreateView in for loop");
                 final Movie movie = extras.getParcelable("MOVIE");
 
                 trailerList = movie.getMovieTrailers();

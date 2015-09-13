@@ -1,6 +1,5 @@
 package com.example.mykongee.popularmovies;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.CursorWrapper;
 import android.net.Uri;
@@ -76,6 +75,14 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     public MainActivityFragment() {
     }
 
+    public interface Callback {
+        // Two onItemSelected methods to handle clicks from a MovieCursorAdapter and MovieAdapter
+
+        void onItemSelected(Movie movie);
+
+        void onItemSelected(Bundle movieInfo);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,6 +92,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             movieArrayList = savedInstanceState.getParcelableArrayList("movies");
         }
     }
+
 
     @Override
     public void onSaveInstanceState(Bundle outState){
@@ -119,13 +127,16 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Movie movie = (Movie) gridView.getItemAtPosition(position);
-                Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
-                Bundle extras = new Bundle();
-                // Pass a Movie object in the intent
 
-                extras.putParcelable("MOVIE", movie);
-                intent.putExtras(extras);
-                startActivity(intent);
+//                // Notify callback instead of launching a new activity through intent
+//                Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
+//                Bundle extras = new Bundle();
+//                // Pass a Movie object in the intent
+//
+//                extras.putParcelable("MOVIE", movie);
+//                intent.putExtras(extras);
+//                startActivity(intent);
+                ((Callback) getActivity()).onItemSelected(movie);
 
             }
         });
@@ -135,7 +146,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     public void updateMovies() {
         mSortOrder = Utility.getPreferredSortOrder(getActivity());
-        Log.v(LOG_TAG, "sort order: " + mSortOrder);
 
         // Switch statement to handle different sort preferences
         switch (mSortOrder) {
@@ -154,13 +164,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Movie movie = (Movie) gridView.getItemAtPosition(position);
-                        Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
-                        Bundle extras = new Bundle();
-                        // Pass a Movie object in the intent
-
-                        extras.putParcelable("MOVIE", movie);
-                        intent.putExtras(extras);
-                        startActivity(intent);
+                        ((Callback) getActivity()).onItemSelected(movie);
 
                     }
                 });
@@ -184,13 +188,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Movie movie = (Movie) gridView.getItemAtPosition(position);
-                        Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
-                        Bundle extras = new Bundle();
-                        // Pass a Movie object in the intent
-
-                        extras.putParcelable("MOVIE", movie);
-                        intent.putExtras(extras);
-                        startActivity(intent);
+                        ((Callback) getActivity()).onItemSelected(movie);
 
                     }
                 });
@@ -206,10 +204,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Intent intent = new Intent(getActivity(), MovieDetailActivity.class)
-                                .setData(MovieContract.MovieEntry.CONTENT_URI);
-
-                        // Get movie data in row numbered "position"
                         CursorWrapper c = (CursorWrapper) parent.getItemAtPosition(position);
                         c.moveToPosition(position);
 
@@ -219,9 +213,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                         extras.putString("RATING", c.getString(COL_MOVIE_RATING));
                         extras.putString("RELEASEDATE", c.getString(COL_MOVIE_RELEASE));
                         extras.putString("TITLE", c.getString(COL_MOVIE_TITLE));
-
-                        intent.putExtras(extras);
-                        startActivity(intent);
+                        ((Callback) getActivity()).onItemSelected(extras);
 
                     }
                 });
@@ -347,7 +339,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                     final String RESPONSE = "trailers,reviews";
 
                     // TODO take both API keys out when commiting
-                    final String API_KEY = "c99a4285b4e0a83397b9deca2e4d9d16";
+                    final String API_KEY = "YOUR_API_KEY";
 
                     Uri builtUri = Uri.parse(BASE_URL).buildUpon()
                             .appendQueryParameter(API_PARAM, API_KEY)
@@ -411,7 +403,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             //http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=[APIKEY]
 
             try {
-                final String API_KEY = "c99a4285b4e0a83397b9deca2e4d9d16";
+                final String API_KEY = "YOUR_API_KEY";
                 final String BASE_URL = "http://api.themoviedb.org/3/discover/movie";
                 final String SORT_PARAM = "sort_by";
                 final String API_PARAM = "api_key";

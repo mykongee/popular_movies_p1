@@ -6,7 +6,7 @@
     android:background="#FFFFFF"
     android:id="@+id/movie_container">
 
-    <ScrollView
+    <FrameLayout
         android:id="@+id/fragment"
         android:name="com.example.mykongee.popularmovies.MovieDetailActivityFragment"
         android:layout_width="match_parent"

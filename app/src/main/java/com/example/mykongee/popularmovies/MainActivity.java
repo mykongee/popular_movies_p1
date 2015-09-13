@@ -7,12 +7,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.mykongee.popularmovies.Models.Movie;
 import com.example.mykongee.popularmovies.MovieDetailActivity.MovieFragment;
-public class MainActivity extends AppCompatActivity {
+
+public class MainActivity extends AppCompatActivity implements MainActivityFragment.Callback {
 
     private final String MOVIEFRAGMENT_TAG = "MFTAG";
     private final String LOG_TAG = MainActivity.class.getSimpleName();
-    public boolean mTwoPane;
+    public static boolean mTwoPane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +47,72 @@ public class MainActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    @Override
+    public void onItemSelected(Movie movie) {
+        if (mTwoPane) {
+            // If there are two panes, call the SupportFragmentManager
+            // to set a new fragment, with the given movie data,
+            // onto the second pane
+            Bundle extras = new Bundle();
+            extras.putParcelable("MOVIE", movie);
+
+            MovieFragment fragment = new MovieFragment();
+            fragment.setArguments(extras);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_container, fragment, MOVIEFRAGMENT_TAG)
+                    .commit();
+        } else {
+            Log.v(LOG_TAG, "onItemSelected MOVIE");
+            Intent intent = new Intent(this, MovieDetailActivity.class);
+            Bundle extras = new Bundle();
+            extras.putParcelable("MOVIE", movie);
+
+            intent.putExtras(extras);
+            startActivity(intent);
+        }
+
+    }
+
+    @Override
+    public void onItemSelected(Bundle movieInfo) {
+        String title = movieInfo.getString("TITLE");
+        String overview = movieInfo.getString("OVERVIEW");
+        String releaseDate = movieInfo.getString("RELEASEDATE");
+        String posterPath = movieInfo.getString("POSTERPATH");
+        String rating = movieInfo.getString("RATING");
+
+        if (mTwoPane) {
+            Bundle extras = new Bundle();
+            extras.putString("OVERVIEW", overview);
+            extras.putString("POSTERPATH", posterPath);
+            extras.putString("RATING", rating);
+            extras.putString("RELEASEDATE", releaseDate);
+            extras.putString("TITLE", title);
+
+            MovieFragment fragment = new MovieFragment();
+            fragment.setArguments(extras);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_container, fragment, MOVIEFRAGMENT_TAG)
+                    .commit();
+        } else {
+            Log.v(LOG_TAG, "onItemSelected BUNDLE");
+
+            Intent intent = new Intent(this, MovieDetailActivity.class);
+            Bundle extras = new Bundle();
+            extras.putString("OVERVIEW", overview);
+            extras.putString("POSTERPATH", posterPath);
+            extras.putString("RATING", rating);
+            extras.putString("RELEASEDATE", releaseDate);
+            extras.putString("TITLE", title);
+
+            intent.putExtras(extras);
+            startActivity(intent);
+        }
+
     }
 
     @Override
