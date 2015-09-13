@@ -1,23 +1,19 @@
 package com.example.mykongee.popularmovies;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ListView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.mykongee.popularmovies.Adapters.ReviewAdapter;
-import com.example.mykongee.popularmovies.Adapters.TrailerAdapter;
 import com.example.mykongee.popularmovies.Models.Movie;
 import com.example.mykongee.popularmovies.Models.Review;
 import com.example.mykongee.popularmovies.Models.Trailer;
@@ -68,8 +64,6 @@ public class MovieDetailActivity extends AppCompatActivity {
         final String LOG_TAG = MovieFragment.class.getSimpleName();
         ArrayList<Trailer> trailerList;
         ArrayList<Review> reviewList;
-        private TrailerAdapter trailerAdapter;
-        private ReviewAdapter reviewAdapter;
 
         public MovieFragment() {
         }
@@ -77,11 +71,11 @@ public class MovieDetailActivity extends AppCompatActivity {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-//            if (savedInstanceState == null || !savedInstanceState.containsKey("trailers")){
-//                trailerList = new ArrayList<Trailer>();
-//            } else {
-//                trailerList = savedInstanceState.getParcelableArrayList("trailers");
-//            }
+            if (savedInstanceState == null || !savedInstanceState.containsKey("trailers")) {
+                trailerList = new ArrayList<Trailer>();
+            } else {
+                trailerList = savedInstanceState.getParcelableArrayList("trailers");
+            }
         }
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -89,50 +83,67 @@ public class MovieDetailActivity extends AppCompatActivity {
 
             View rootView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
 
+            LinearLayout parentLayout = (LinearLayout) rootView;
+
+            LayoutInflater layoutInflater = getLayoutInflater(savedInstanceState);
+            View view;
+
             Intent intent = getActivity().getIntent();
             Bundle extras = intent.getExtras();
             Movie movie = extras.getParcelable("MOVIE");
 
             trailerList = movie.getMovieTrailers();
             reviewList = movie.getMovieReviews();
-            Log.v(LOG_TAG, "detail fragment review list size: " + reviewList.size());
-            trailerAdapter = new TrailerAdapter(
-                    getActivity(), //Context in which we want to place the adapter into
-                    R.layout.list_item_trailer,
-                    R.id.list_item_trailer,
-                    trailerList
-                    // /new ArrayList<Trailer>() //the data source we want to populate the ListView with
-            );
 
-//            reviewAdapter = new ReviewAdapter(
-//                    getActivity(), R.layout.list_item_review, R.id.list_item_review, reviewList
-//            );
+            if ((trailerList != null) && trailerList.size() != 0) {
+                view = layoutInflater.inflate(R.layout.header, parentLayout, false);
 
-//            if (trailerAdapter != null) {
-//                trailerAdapter.clear();
-//                for (Trailer trailer : trailerList) {
-//                    trailerAdapter.add(trailer);
-//                }
-//            }
-//
-//            if (reviewAdapter != null) {
-//                reviewAdapter.clear();
-//                for (Review review : reviewList) {
-//                    reviewAdapter.add(review);
-//                }
-//            }
+                TextView header = (TextView) view.findViewById(R.id.header);
+                header.setText("Trailers");
+                parentLayout.addView(view);
 
+                for (int i = 0; i < trailerList.size(); i++) {
+                    final int x = i;
+                    view = layoutInflater.inflate(R.layout.cardview_trailer, parentLayout, false);
 
-            ListView trailers = (ListView) rootView.findViewById(R.id.trailers);
+                    TextView textView = (TextView) view.findViewById(R.id.name);
+                    textView.setText(trailerList.get(i).getName());
 
-            RecyclerView reviews = (RecyclerView) rootView.findViewById(R.id.reviews);
-            LinearLayoutManager llm = new LinearLayoutManager(getActivity());
+                    view.setOnClickListener(new View.OnClickListener() {
+                        String source = trailerList.get(x).getSource();
 
-            ReviewAdapter reviewAdapter = new ReviewAdapter(reviewList);
+                        @Override
+                        public void onClick(View v) {
+                            startActivity(new Intent(Intent.ACTION_VIEW,
+                                    Uri.parse("http://www.youtube.com/watch?v=" + source)));
+                        }
+                    });
 
-            trailers.setAdapter(trailerAdapter);
-            reviews.setLayoutManager(llm);
-            reviews.setAdapter(reviewAdapter);
+                    if (view != null) {
+                        parentLayout.addView(view);
+                    }
+                }
+            }
+
+            if ((reviewList != null) && reviewList.size() != 0) {
+                view = layoutInflater.inflate(R.layout.header, parentLayout, false);
+
+                TextView header = (TextView) view.findViewById(R.id.header);
+                header.setText("Reviews");
+                parentLayout.addView(view);
+                for (int i = 0; i < reviewList.size(); i++) {
+                    view = layoutInflater.inflate(R.layout.cardview_review, parentLayout, false);
+
+                    TextView author = (TextView) view.findViewById(R.id.author);
+                    author.setText(reviewList.get(i).getAuthor());
+                    TextView content = (TextView) view.findViewById(R.id.content);
+                    content.setText(reviewList.get(i).getContent());
+
+                    if (view != null) {
+                        parentLayout.addView(view);
+                    }
+                }
+            }
 
             ((TextView) rootView.findViewById(R.id.title)).setText(movie.getTitle());
             ((ImageView) rootView.findViewById(R.id.poster)).
