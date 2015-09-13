@@ -11,7 +11,7 @@ import com.example.mykongee.popularmovies.data.MovieContract.MovieEntry;
 public class MovieDbHelper extends SQLiteOpenHelper {
 
     // Must manually update database version if changing versions
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 7;
 
     static final String DATABASE_NAME = "movie.db";
 
@@ -29,7 +29,6 @@ public class MovieDbHelper extends SQLiteOpenHelper {
                 MovieEntry.COLUMN_POSTER_PATH + " TEXT NOT NULL, " +
                 MovieEntry.COLUMN_RATING + " TEXT NOT NULL, " +
                 MovieEntry.COLUMN_RELEASE_DATE + " TEXT NOT NULL, " +
-                MovieEntry.COLUMN_POPULARITY + " TEXT NOT NULL, " +
                 " UNIQUE (" + MovieEntry.COLUMN_MOVIE_ID + ") ON CONFLICT REPLACE);";
 
         sqLiteDatabase.execSQL(CREATE_MOVIE_TABLE);

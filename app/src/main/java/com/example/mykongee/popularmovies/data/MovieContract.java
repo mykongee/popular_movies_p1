@@ -34,8 +34,6 @@ public class MovieContract {
         // Movie id as returned by the api
         public static final String COLUMN_MOVIE_ID = "movie_id";
         public static final String COLUMN_RATING = "rating";
-        public static final String COLUMN_POPULARITY = "popularity";
-
 
         // TEXT
         public static final String COLUMN_TITLE = "title";

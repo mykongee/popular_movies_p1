@@ -2,6 +2,7 @@ package com.example.mykongee.popularmovies;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.CursorWrapper;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -40,14 +41,16 @@ import java.util.ArrayList;
  */
 public class MainActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    // MovieAdapter movieAdapter;
     final static int MOVIE_LOADER_ID = 0;
     private MovieAdapter movieAdapter;
     private MovieCursorAdapter movieCursorAdapter;
+
     GridView gridView;
     ArrayList<Movie> movieArrayList;
-    private String LOG_TAG = MainActivityFragment.class.getSimpleName();
     private CursorLoader cursorLoader;
+    public String mSortOrder;
+
+    private String LOG_TAG = MainActivityFragment.class.getSimpleName();
 
     private static final String[] MOVIE_COLUMNS = {
             MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID,
@@ -57,7 +60,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             MovieContract.MovieEntry.COLUMN_RATING,
             MovieContract.MovieEntry.COLUMN_RELEASE_DATE,
             MovieContract.MovieEntry.COLUMN_TITLE,
-            MovieContract.MovieEntry.COLUMN_POPULARITY
     };
 
 
@@ -68,7 +70,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     static final int COL_MOVIE_RATING = 4;
     static final int COL_MOVIE_RELEASE = 5;
     static final int COL_MOVIE_TITLE = 6;
-    static final int COL_MOVIE_POPULARITY = 7;
+
+    // For switch case statements
 
     public MainActivityFragment() {
     }
@@ -102,8 +105,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
         // Get a cursor from the ContentResolver with movie information
 
-        //movieAdapter = new MovieCursorAdapter(getActivity(), null, 0);
-
         movieAdapter = new MovieAdapter(
                 getActivity(), //Context in which we want to place the adapter into
                 R.layout.list_item_movie, //The format of the views inside the GridView
@@ -120,13 +121,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 Movie movie = (Movie) gridView.getItemAtPosition(position);
                 Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
                 Bundle extras = new Bundle();
-//                extras.putString("TITLE", movie.getTitle());
-//                extras.putString("POSTER_PATH", movie.getPosterPath());
-//                extras.putString("OVERVIEW", movie.getOverview());
-//                extras.putString("RELEASE_DATE", movie.getReleaseDate());
-//                extras.putString("RATING", movie.getRating().toString());
-//                extras.putParcelableArrayList("TRAILERS", movie.getMovieTrailers());
-//                extras.putParcelableArrayList("REVIEWS", movie.getMovieReviews());
+                // Pass a Movie object in the intent
+
                 extras.putParcelable("MOVIE", movie);
                 intent.putExtras(extras);
                 startActivity(intent);
@@ -137,35 +133,109 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         return rootView;
     }
 
-    public void onSortOrderChange() {
-        updateMovies();
-        // TODO Make a static member variable mFavorites to indicate whether
-        // To load data from a cursor containing data of a Favorites movie table
-        // TODO Set a MovieCursorAdapter to gridView here when sorting by Favorites
-        getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
-    }
-
     public void updateMovies() {
-        String sortPref = Utility.getPreferredSortOrder(getActivity());
-//        SharedPreferences sharedPreferences = PreferenceManager.
-//                getDefaultSharedPreferences(getActivity());
-//        String sortPref =  sharedPreferences.getString(getActivity().getString(R.string.sort_by_key),
-//                getActivity().getString(R.string.default_sort_by_value));
+        mSortOrder = Utility.getPreferredSortOrder(getActivity());
+        Log.v(LOG_TAG, "sort order: " + mSortOrder);
 
-        // TODO Fix why this is vote average
-        Log.v(LOG_TAG, "updateMovies() sortPref = " + sortPref);
-        // doInBackground takes in a String[]
-        String[] prefs = {sortPref};
-        FetchMovieTask fetchMovieTask = new FetchMovieTask();
-        fetchMovieTask.execute(prefs);
+        // Switch statement to handle different sort preferences
+        switch (mSortOrder) {
+            case "popularity.desc": {
+                getLoaderManager().destroyLoader(MOVIE_LOADER_ID);
+                String[] prefs = {mSortOrder};
+                movieAdapter = new MovieAdapter(
+                        getActivity(), //Context in which we want to place the adapter into
+                        R.layout.list_item_movie, //The format of the views inside the GridView
+                        R.id.list_item_movie_imageview, //ID of the imageview to populate
+                        movieArrayList
+                        // /new ArrayList<Movie>() //the data source we want to populate the ListView with
+                );
+                gridView.setAdapter(movieAdapter);
+                gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Movie movie = (Movie) gridView.getItemAtPosition(position);
+                        Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
+                        Bundle extras = new Bundle();
+                        // Pass a Movie object in the intent
+
+                        extras.putParcelable("MOVIE", movie);
+                        intent.putExtras(extras);
+                        startActivity(intent);
+
+                    }
+                });
+
+                FetchMovieTask fetchMovieTask = new FetchMovieTask();
+                fetchMovieTask.execute(prefs);
+                break;
+            }
+            case "vote_average.desc": {
+                getLoaderManager().destroyLoader(MOVIE_LOADER_ID);
+                String[] prefs = {mSortOrder};
+                movieAdapter = new MovieAdapter(
+                        getActivity(), //Context in which we want to place the adapter into
+                        R.layout.list_item_movie, //The format of the views inside the GridView
+                        R.id.list_item_movie_imageview, //ID of the imageview to populate
+                        movieArrayList
+                        // /new ArrayList<Movie>() //the data source we want to populate the ListView with
+                );
+                gridView.setAdapter(movieAdapter);
+                gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Movie movie = (Movie) gridView.getItemAtPosition(position);
+                        Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
+                        Bundle extras = new Bundle();
+                        // Pass a Movie object in the intent
+
+                        extras.putParcelable("MOVIE", movie);
+                        intent.putExtras(extras);
+                        startActivity(intent);
+
+                    }
+                });
+
+                FetchMovieTask fetchMovieTask = new FetchMovieTask();
+                fetchMovieTask.execute(prefs);
+                break;
+            }
+            case "favorites": {
+                movieCursorAdapter = new MovieCursorAdapter(getActivity(), null, 0);
+                gridView.setAdapter(movieCursorAdapter);
+                getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
+                gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Intent intent = new Intent(getActivity(), MovieDetailActivity.class)
+                                .setData(MovieContract.MovieEntry.CONTENT_URI);
+
+                        // Get movie data in row numbered "position"
+                        CursorWrapper c = (CursorWrapper) parent.getItemAtPosition(position);
+                        c.moveToPosition(position);
+
+                        Bundle extras = new Bundle();
+                        extras.putString("OVERVIEW", c.getString(COL_MOVIE_OVERVIEW));
+                        extras.putString("POSTERPATH", c.getString(COL_MOVIE_POSTER));
+                        extras.putString("RATING", c.getString(COL_MOVIE_RATING));
+                        extras.putString("RELEASEDATE", c.getString(COL_MOVIE_RELEASE));
+                        extras.putString("TITLE", c.getString(COL_MOVIE_TITLE));
+
+                        intent.putExtras(extras);
+                        startActivity(intent);
+
+                    }
+                });
+                break;
+            }
+        }
 
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        // Initialize the appropriate loader(s)
-        getLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
         super.onActivityCreated(savedInstanceState);
+        Log.v(LOG_TAG, "onActivityCreated");
+        getLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
     }
 
     @Override
@@ -173,22 +243,18 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         super.onStart();
         Log.v("POPULARMOVIES", "onStart()");
         updateMovies();
-        //getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        switch (id) {
-            case MOVIE_LOADER_ID:
-                String sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY;
-                cursorLoader = new CursorLoader(getActivity(),
-                        MovieContract.MovieEntry.CONTENT_URI,
-                        MOVIE_COLUMNS,
-                        null,
-                        null,
-                        sortOrder);
-        }
+        Log.v(LOG_TAG, "created loader");
+        cursorLoader = new CursorLoader(getActivity(),
+                MovieContract.MovieEntry.CONTENT_URI,
+                MOVIE_COLUMNS,
+                null,
+                null,
+                null);
         return cursorLoader;
 
     }
@@ -215,11 +281,6 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
             //Names of the JSON Objects we will extract
             final String TMDB_RESULTS = "results";
-            final String TMDB_TITLE = "original_title";
-            final String TMDB_IMAGE = "poster_path";
-            final String TMDB_OVERVIEW = "overview";
-            final String TMDB_RELEASE_DATE = "release_date";
-            final String TMDB_AVG_VOTE = "vote_average";
 
             JSONObject movieJson = new JSONObject(movieJsonStr);
             JSONArray movieJsonArray = movieJson.getJSONArray(TMDB_RESULTS);
@@ -286,7 +347,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                     final String RESPONSE = "trailers,reviews";
 
                     // TODO take both API keys out when commiting
-                    final String API_KEY = "";
+                    final String API_KEY = "c99a4285b4e0a83397b9deca2e4d9d16";
 
                     Uri builtUri = Uri.parse(BASE_URL).buildUpon()
                             .appendQueryParameter(API_PARAM, API_KEY)
@@ -350,7 +411,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             //http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=[APIKEY]
 
             try {
-                final String API_KEY = "";
+                final String API_KEY = "c99a4285b4e0a83397b9deca2e4d9d16";
                 final String BASE_URL = "http://api.themoviedb.org/3/discover/movie";
                 final String SORT_PARAM = "sort_by";
                 final String API_PARAM = "api_key";

@@ -64,9 +64,6 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
                 JSONObject movieJsonObject = movieJsonArray.getJSONObject(i);
                 Movie movieModel = Movie.fromJsonObject(movieJsonObject);
 
-                // TODO Don't store the movies in a database, only the favorites,
-                // TODO Do it like in P1
-
                 ContentValues movieValues = new ContentValues();
 
                 // Data that will populate the columns of a row in the database
@@ -78,9 +75,6 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
                 movieValues.put(MovieContract.MovieEntry.COLUMN_RATING, movieModel.getRating());
                 movieValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE,
                         movieModel.getReleaseDate());
-//                movieValues.put(MovieContract.MovieEntry.COLUMN_POPULARITY,
-//                        movieModel.getPopularity());
-
 
                 // Add the ContentValues to the vector that will populate the database
                 contentValuesVector.add(movieValues);
